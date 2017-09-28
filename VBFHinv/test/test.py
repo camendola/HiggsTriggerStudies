@@ -3,8 +3,8 @@ import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TagAndProbe")
 
-#isMC = False
-isMC = True
+isMC = False
+#isMC = True
 #is2016 = True
 is2016 = False
 
@@ -31,11 +31,14 @@ options.parseArguments()
 
 if not isMC: # will use 80X
     from Configuration.AlCa.autoCond import autoCond
-    process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v8'
-    process.load('TauTagAndProbe.TauTagAndProbe.tagAndProbe_cff')
+    #process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v8'
+    process.GlobalTag.globaltag = '92X_dataRun2_HLT_v7'
+    process.load('HiggsTriggerStudies.VBFHinv.VBFMETNtuplizer_cff')
+    #process.load('TauTagAndProbe.TauTagAndProbe.tagAndProbe_cff')
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(
-            '/store/data/Run2016H/SingleMuon/MINIAOD/PromptReco-v2/000/282/092/00000/DE499C8E-1B8B-E611-8C93-02163E014207.root'
+            '/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/780/00000/00080C61-E17E-E711-B88E-02163E01441B.root'
+            #'/store/data/Run2016H/SingleMuon/MINIAOD/PromptReco-v2/000/282/092/00000/DE499C8E-1B8B-E611-8C93-02163E014207.root'
         ),
     )
 else:
@@ -46,7 +49,6 @@ else:
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(            
             '/store/mc/PhaseIFall16MiniAOD/VBFHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/FlatPU28to62HcalNZSRAW_PhaseIFall16_90X_upgrade2017_realistic_v6_C1-v1/00000/182AC7D1-661B-E711-BA96-0242AC130006.root'
-            #'/store/mc/RunIISpring16MiniAODv2/GluGluHToTauTau_M125_13TeV_powheg_pythia8/MINIAODSIM/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14-v1/50000/B0D22F36-9567-E611-A5FB-0CC47A4DEE76.root'
         )
     )
 
