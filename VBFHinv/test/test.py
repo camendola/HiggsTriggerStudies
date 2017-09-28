@@ -37,7 +37,7 @@ if not isMC: # will use 80X
     #process.load('TauTagAndProbe.TauTagAndProbe.tagAndProbe_cff')
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(
-            '/store/data/Run2017C/SingleMuon/MINIAOD/PromptReco-v3/000/300/780/00000/00080C61-E17E-E711-B88E-02163E01441B.root'
+            'file:00080C61-E17E-E711-B88E-02163E01441B.root',
             #'/store/data/Run2016H/SingleMuon/MINIAOD/PromptReco-v2/000/282/092/00000/DE499C8E-1B8B-E611-8C93-02163E014207.root'
         ),
     )

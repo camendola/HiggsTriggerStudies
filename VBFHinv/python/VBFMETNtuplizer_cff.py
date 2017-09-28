@@ -207,12 +207,12 @@ bjets = cms.EDFilter("PATJetRefSelector",
         filter = cms.bool(True)
 )
 
-TagAndProbe = cms.EDFilter("TauTagAndProbeFilter",
-        taus  = cms.InputTag("goodTaus"),
-        muons = cms.InputTag("goodMuons"),
-        met   = cms.InputTag("slimmedMETs"),
-        useMassCuts = cms.bool(True)
-)
+#TagAndProbe = cms.EDFilter("TauTagAndProbeFilter",
+#        taus  = cms.InputTag("goodTaus"),
+#        muons = cms.InputTag("goodMuons"),
+#        met   = cms.InputTag("slimmedMETs"),
+#        useMassCuts = cms.bool(True)
+#)
 
 
 
@@ -224,8 +224,10 @@ patTriggerUnpacker = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
 
 Ntuplizer = cms.EDAnalyzer("Ntuplizer",
     treeName = cms.string("TagAndProbe"),
-    muons = cms.InputTag("TagAndProbe"),
-    taus = cms.InputTag("TagAndProbe"),
+    #muons = cms.InputTag("TagAndProbe"),
+    #taus = cms.InputTag("TagAndProbe"),
+    muons = cms.InputTag("goodMuons"),
+    taus = cms.InputTag("goodTaus"),
     triggerList = HLTLIST,
     triggerList_tag = HLTLIST_TAG,
     triggerSet = cms.InputTag("patTriggerUnpacker"),
@@ -242,9 +244,9 @@ TAndPseq = cms.Sequence(
     hltFilter        +
     muonNumberFilter +
     goodMuons        +
-    goodTaus         +
+    goodTaus         
     #~bjets           +
-    TagAndProbe
+    #TagAndProbe
 )
 
 NtupleSeq = cms.Sequence(
