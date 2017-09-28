@@ -19,8 +19,10 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Utilities/interface/InputTag.h>
+#include <DataFormats/PatCandidates/interface/MET.h>
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/PatCandidates/interface/Tau.h>
+#include <DataFormats/PatCandidates/interface/Jet.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -30,6 +32,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include <DataFormats/Common/interface/View.h>
 
 #include "tParameterSet.h"
 
@@ -155,6 +158,8 @@ class Ntuplizer : public edm::EDAnalyzer {
 
         edm::EDGetTokenT<pat::MuonRefVector>  _muonsTag;
         edm::EDGetTokenT<pat::TauRefVector>   _tauTag;
+        edm::EDGetTokenT<pat::METCollection>   _metTag;
+        edm::EDGetTokenT<edm::View<pat::Jet>>   _jetTag;
         edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> _triggerObjects;
         edm::EDGetTokenT<edm::TriggerResults> _triggerBits;
         edm::EDGetTokenT<l1t::TauBxCollection> _L1TauTag  ;
@@ -190,6 +195,8 @@ class Ntuplizer : public edm::EDAnalyzer {
 Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig) :
 _muonsTag       (consumes<pat::MuonRefVector>                     (iConfig.getParameter<edm::InputTag>("muons"))),
 _tauTag         (consumes<pat::TauRefVector>                      (iConfig.getParameter<edm::InputTag>("taus"))),
+_metTag         (consumes<pat::METCollection>                     (iConfig.getParameter<edm::InputTag>("met"))),
+_jetTag         (consumes<edm::View<pat::Jet>>                    (iConfig.getParameter<edm::InputTag>("jets"))),
 _triggerObjects (consumes<pat::TriggerObjectStandAloneCollection> (iConfig.getParameter<edm::InputTag>("triggerSet"))),
 _triggerBits    (consumes<edm::TriggerResults>                    (iConfig.getParameter<edm::InputTag>("triggerResultsLabel"))),
 _L1TauTag       (consumes<l1t::TauBxCollection>                   (iConfig.getParameter<edm::InputTag>("L1Tau"))),
@@ -496,6 +503,8 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& eSetup)
     // search for the tag in the event
     edm::Handle<pat::MuonRefVector> muonHandle;
     edm::Handle<pat::TauRefVector>  tauHandle;
+    edm::Handle<pat::METCollection>  metHandle;
+    edm::Handle<edm::View<pat::Jet>> jetHandle;
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
     edm::Handle<edm::TriggerResults> triggerBits;
     edm::Handle<std::vector<reco::Vertex> >  vertexes;
@@ -505,6 +514,8 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& eSetup)
 
     iEvent.getByToken(this -> _muonsTag, muonHandle);
     iEvent.getByToken(this -> _tauTag,   tauHandle);
+    iEvent.getByToken(this -> _metTag,   metHandle);
+    iEvent.getByToken(this -> _jetTag, jetHandle);
     iEvent.getByToken(this -> _triggerObjects, triggerObjects);
     iEvent.getByToken(this -> _triggerBits, triggerBits);
     iEvent.getByToken(this -> _VtxTag,vertexes);
@@ -522,9 +533,23 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& eSetup)
     if(muonHandle.isValid()) this -> _isOS = (muon -> charge() / tau -> charge() < 0) ? true : false;
 
 
+    if(metHandle.isValid())
+      {
+	//cout<<"hey I'm valid"<<endl;
+	const pat::MET met = (*metHandle)[0] ;
+	//cout<<met.pt()<<endl;
+      }
+
+    const edm::View<pat::Jet>* jets = jetHandle.product();
+    for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
+      {
+	//cout<<"(float) ijet->px() = "<<ijet->px()<<endl;
+      }
+
     this -> _tauTriggerBitSet.reset();
 
     bool foundMuTrigger = false;
+
 
     for (pat::TriggerObjectStandAlone  obj : *triggerObjects)
     {
