@@ -37,7 +37,8 @@ if not isMC: # will use 80X
     #process.load('TauTagAndProbe.TauTagAndProbe.tagAndProbe_cff')
     process.source = cms.Source("PoolSource",
         fileNames = cms.untracked.vstring(
-            'file:00080C61-E17E-E711-B88E-02163E01441B.root',
+            #'file:00080C61-E17E-E711-B88E-02163E01441B.root',
+            'file:/data_CMS/cms/davignon/TauTagAndProbe_WithSeptember2017Calibrations/CMSSW_9_2_8/src/TauTagAndProbe/TauTagAndProbe/test/1A710040-BD7E-E711-A401-02163E011DE8.root',
             #'/store/data/Run2016H/SingleMuon/MINIAOD/PromptReco-v2/000/282/092/00000/DE499C8E-1B8B-E611-8C93-02163E014207.root'
         ),
     )
@@ -83,7 +84,7 @@ process.p = cms.Path(
 
 # Silence output
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 # Adding ntuplizer
 process.TFileService=cms.Service('TFileService',fileName=cms.string(options.outputFile))
