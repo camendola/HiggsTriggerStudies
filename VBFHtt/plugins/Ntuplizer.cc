@@ -1,0 +1,740 @@
+#ifndef NTUPLIZER_H
+#define NTUPLIZER_H
+
+#include <cmath>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <map>
+#include <vector>
+#include <utility>
+#include <TNtuple.h>
+#include <TString.h>
+#include <bitset>
+
+
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/Framework/interface/Frameworkfwd.h>
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Utilities/interface/InputTag.h>
+#include <DataFormats/PatCandidates/interface/MET.h>
+#include <DataFormats/PatCandidates/interface/Muon.h>
+#include <DataFormats/PatCandidates/interface/Tau.h>
+#include <DataFormats/PatCandidates/interface/Jet.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include <DataFormats/Common/interface/View.h>
+
+#include "tParameterSet.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "Loader.C"
+
+
+//Set this variable to decide the number of triggers that you want to check simultaneously
+#define NUMBER_OF_MAXIMUM_TRIGGERS 64
+
+
+/*
+  ██████  ███████  ██████ ██       █████  ██████   █████  ████████ ██  ██████  ███    ██
+  ██   ██ ██      ██      ██      ██   ██ ██   ██ ██   ██    ██    ██ ██    ██ ████   ██
+  ██   ██ █████   ██      ██      ███████ ██████  ███████    ██    ██ ██    ██ ██ ██  ██
+  ██   ██ ██      ██      ██      ██   ██ ██   ██ ██   ██    ██    ██ ██    ██ ██  ██ ██
+  ██████  ███████  ██████ ███████ ██   ██ ██   ██ ██   ██    ██    ██  ██████  ██   ████
+*/
+
+class Ntuplizer : public edm::EDAnalyzer {
+public:
+  /// Constructor
+  explicit Ntuplizer(const edm::ParameterSet&);
+  /// Destructor
+  virtual ~Ntuplizer();
+
+private:
+  //----edm control---
+  virtual void beginJob() ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob();
+  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  void Initialize();
+  bool hasFilters(const pat::TriggerObjectStandAlone&  obj , const std::vector<std::string>& filtersToLookFor);
+  bool hasFilter(const pat::TriggerObjectStandAlone&  obj , const std::string& filterToLookFor);
+
+  TTree *_tree;
+  TTree *_triggerNamesTree;
+  std::string _treeName;
+  // -------------------------------------
+  // variables to be filled in output tree
+  ULong64_t       _indexevents;
+  Int_t           _runNumber;
+  Int_t           _lumi;
+  unsigned long _tauTriggerBits;
+  float _tauPt;
+  float _tauEta;
+  float _tauPhi;
+  int _tauDM;
+
+  float _MET;
+  
+  bool _byLooseCombinedIsolationDeltaBetaCorr3Hits;
+  bool _byMediumCombinedIsolationDeltaBetaCorr3Hits;
+  bool _byTightCombinedIsolationDeltaBetaCorr3Hits;
+  bool _byVLooseIsolationMVArun2v1DBoldDMwLT;
+  bool _byLooseIsolationMVArun2v1DBoldDMwLT;
+  bool _byMediumIsolationMVArun2v1DBoldDMwLT;
+  bool _byTightIsolationMVArun2v1DBoldDMwLT;
+  bool _byVTightIsolationMVArun2v1DBoldDMwLT;
+  bool _byVLooseIsolationMVArun2v1DBnewDMwLT;
+  bool _byLooseIsolationMVArun2v1DBnewDMwLT;
+  bool _byMediumIsolationMVArun2v1DBnewDMwLT;
+  bool _byTightIsolationMVArun2v1DBnewDMwLT;
+  bool _byVTightIsolationMVArun2v1DBnewDMwLT;       
+  bool _byLooseIsolationMVArun2v1DBdR03oldDMwLT;
+  bool _byMediumIsolationMVArun2v1DBdR03oldDMwLT;
+  bool _byTightIsolationMVArun2v1DBdR03oldDMwLT;
+  bool _byVTightIsolationMVArun2v1DBdR03oldDMwLT;
+          
+  bool _againstMuonLoose3;
+  bool _againstMuonTight3;
+  bool _againstElectronVLooseMVA6;
+  bool _againstElectronLooseMVA6;
+  bool _againstElectronMediumMVA6;
+  bool _againstElectronTightMVA6;
+  bool _againstElectronVTightMVA6;
+
+  float _hltPt;
+  float _hltEta;
+  float _hltPhi;
+  float _hltL2CaloJetPt;
+  float _hltL2CaloJetEta;
+  float _hltL2CaloJetPhi;
+  float _hltL2CaloJetIso;
+  float _hltL2CaloJetIsoPixPt;
+  float _hltL2CaloJetIsoPixEta;
+  float _hltL2CaloJetIsoPixPhi;
+  float _hltPFTauTrackPt;
+  float _hltPFTauTrackEta;
+  float _hltPFTauTrackPhi;
+  float _hltPFTauTrackRegPt;
+  float _hltPFTauTrackRegEta;
+  float _hltPFTauTrackRegPhi;
+  float _hltPFTau35TrackPt1RegPt;
+  float _hltPFTau35TrackPt1RegEta;
+  float _hltPFTau35TrackPt1RegPhi;
+
+  int _l1tQual;
+  float _l1tPt;
+  float _l1tEta;
+  float _l1tPhi;
+  int _l1tIso;
+  int _l1tEmuQual;
+  float _l1tEmuPt;
+  float _l1tEmuEta;
+  float _l1tEmuPhi;
+  int _l1tEmuIso;
+  int _l1tEmuNTT;
+  int _l1tEmuHasEM;
+  int _l1tEmuIsMerged;
+  int _l1tEmuTowerIEta;
+  int _l1tEmuTowerIPhi;
+  int _l1tEmuRawEt;
+  int _l1tEmuIsoEt;
+  Bool_t _hasTriggerMuonType;
+  Bool_t _hasTriggerTauType;
+  Bool_t _isMatched;
+  Bool_t _isOS;
+  int _foundJet;
+  float _muonPt;
+  float _muonEta;
+  float _muonPhi;
+  int _Nvtx;
+
+  std::vector<string> _probeTestedPathsNames;
+  std::vector<int> _probeNumberTestedFiltersNames;
+  std::vector<string> _probeTestedFiltersNames;
+  std::vector<int> _probePassTestedFiltersNames;
+
+  edm::EDGetTokenT<pat::MuonRefVector>  _muonsTag;
+  edm::EDGetTokenT<pat::TauRefVector>   _tauTag;
+  edm::EDGetTokenT<pat::METCollection>   _metTag;
+  edm::EDGetTokenT<edm::View<pat::Jet>>   _jetTag;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> _triggerObjects;
+  edm::EDGetTokenT<edm::TriggerResults> _triggerBits;
+  edm::EDGetTokenT<l1t::TauBxCollection> _L1TauTag  ;
+  edm::EDGetTokenT<l1t::TauBxCollection> _L1EmuTauTag  ;
+  edm::EDGetTokenT<std::vector<reco::Vertex>> _VtxTag;
+  edm::EDGetTokenT<reco::CaloJetCollection> _hltL2CaloJet_ForIsoPix_Tag;
+  edm::EDGetTokenT<reco::JetTagCollection> _hltL2CaloJet_ForIsoPix_IsoTag;
+
+  //!Contains the parameters
+  tVParameterSet _parameters;
+  tVParameterSet _parameters_Tag;
+
+  edm::InputTag _processName;
+  //! Maximum
+  std::bitset<NUMBER_OF_MAXIMUM_TRIGGERS> _tauTriggerBitSet;
+
+
+
+  HLTConfigProvider _hltConfig;
+
+
+};
+
+/*
+  ██ ███    ███ ██████  ██      ███████ ███    ███ ███████ ███    ██ ████████  █████  ████████ ██  ██████  ███    ██
+  ██ ████  ████ ██   ██ ██      ██      ████  ████ ██      ████   ██    ██    ██   ██    ██    ██ ██    ██ ████   ██
+  ██ ██ ████ ██ ██████  ██      █████   ██ ████ ██ █████   ██ ██  ██    ██    ███████    ██    ██ ██    ██ ██ ██  ██
+  ██ ██  ██  ██ ██      ██      ██      ██  ██  ██ ██      ██  ██ ██    ██    ██   ██    ██    ██ ██    ██ ██  ██ ██
+  ██ ██      ██ ██      ███████ ███████ ██      ██ ███████ ██   ████    ██    ██   ██    ██    ██  ██████  ██   ████
+*/
+
+// ----Constructor and Destructor -----
+Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig) :
+  _muonsTag       (consumes<pat::MuonRefVector>                     (iConfig.getParameter<edm::InputTag>("muons"))),
+  _metTag         (consumes<pat::METCollection>                     (iConfig.getParameter<edm::InputTag>("met"))),
+  _jetTag         (consumes<edm::View<pat::Jet>>                    (iConfig.getParameter<edm::InputTag>("jets"))),
+  _triggerObjects (consumes<pat::TriggerObjectStandAloneCollection> (iConfig.getParameter<edm::InputTag>("triggerSet"))),
+  _triggerBits    (consumes<edm::TriggerResults>                    (iConfig.getParameter<edm::InputTag>("triggerResultsLabel"))),
+  _VtxTag         (consumes<std::vector<reco::Vertex>>              (iConfig.getParameter<edm::InputTag>("Vertexes")))
+{
+  this -> _treeName = iConfig.getParameter<std::string>("treeName");
+  this -> _processName = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+
+  TString triggerName;
+  edm::Service<TFileService> fs;
+  this -> _triggerNamesTree = fs -> make<TTree>("triggerNames", "triggerNames");
+  this -> _triggerNamesTree -> Branch("triggerNames",&triggerName);
+
+  //Building the trigger arrays
+
+  //event level requirement on the probe (tau) path
+  //just filling parameters for now
+  const std::vector<edm::ParameterSet>& HLTList = iConfig.getParameter <std::vector<edm::ParameterSet> > ("triggerList");
+  for (const edm::ParameterSet& parameterSet : HLTList) {
+    tParameterSet pSet;
+    pSet.hltPath = parameterSet.getParameter<std::string>("HLT");
+    triggerName = pSet.hltPath;
+    pSet.hltFilters1 = parameterSet.getParameter<std::vector<std::string> >("path1");
+    pSet.hltFilters2 = parameterSet.getParameter<std::vector<std::string> >("path2");
+    pSet.hltFilters3 = parameterSet.getParameter<std::vector<std::string> >("path3");
+    pSet.leg1 = parameterSet.getParameter<int>("leg1");
+    pSet.leg2 = parameterSet.getParameter<int>("leg2");
+    pSet.leg3 = parameterSet.getParameter<int>("leg3");
+    this -> _parameters.push_back(pSet);
+
+    this -> _triggerNamesTree -> Fill();
+  }
+
+  //event level requirement on the tag (muon) path (typically IsoMuon27)
+  //just filling parameters for now
+  const std::vector<edm::ParameterSet>& HLTList_Tag = iConfig.getParameter <std::vector<edm::ParameterSet> > ("triggerList_tag");
+  for (const edm::ParameterSet& parameterSet : HLTList_Tag) {
+    tParameterSet pSet;
+    pSet.hltPath = parameterSet.getParameter<std::string>("HLT");
+    pSet.hltFilters1 = parameterSet.getParameter<std::vector<std::string> >("path1");
+    pSet.hltFilters2 = parameterSet.getParameter<std::vector<std::string> >("path2");
+    pSet.hltFilters3 = parameterSet.getParameter<std::vector<std::string> >("path3");
+    pSet.leg1 = parameterSet.getParameter<int>("leg1");
+    pSet.leg2 = parameterSet.getParameter<int>("leg2");
+    pSet.leg3 = parameterSet.getParameter<int>("leg3");
+    this -> _parameters_Tag.push_back(pSet);
+  }
+    
+
+
+  this -> Initialize();
+  return;
+}
+
+Ntuplizer::~Ntuplizer()
+{}
+
+void Ntuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+{
+  Bool_t changedConfig = false;
+
+  if(!this -> _hltConfig.init(iRun, iSetup, this -> _processName.process(), changedConfig)){
+    edm::LogError("HLTMatchingFilter") << "Initialization of HLTConfigProvider failed!!";
+    return;
+  }
+
+  const edm::TriggerNames::Strings& triggerNames = this -> _hltConfig.triggerNames();
+  std::cout << " ===== LOOKING FOR THE PATH INDEXES =====" << std::endl;
+  for (tParameterSet& parameter : this -> _parameters){
+    const std::string& hltPath = parameter.hltPath;
+    cout<<"hltPath tested = "<<hltPath<<endl;
+    bool found = false;
+    for(unsigned int j=0; j < triggerNames.size(); j++)
+      {
+	//std::cout << triggerNames[j] << std::endl;
+	if (triggerNames[j].find(hltPath) != std::string::npos) {
+	  found = true;
+	  parameter.hltPathIndex = j;
+
+	  std::cout << "### FOUND AT INDEX #" << j << " --> " << triggerNames[j] << std::endl;
+	}
+      }
+    if (!found) parameter.hltPathIndex = -1;
+  }
+
+
+  //std::cout << " ===== LOOKING FOR THE PATH INDICES FOR TAG=====" << std::endl;
+  for (tParameterSet& parameter : this -> _parameters_Tag){
+    const std::string& hltPath = parameter.hltPath;
+    bool found = false;
+    for(unsigned int j=0; j < triggerNames.size(); j++)
+      {
+	// std::cout << triggerNames[j] << std::endl;
+	if (triggerNames[j].find(hltPath) != std::string::npos) {
+	  found = true;
+	  parameter.hltPathIndex = j;
+
+	  std::cout << "### FOUND AT INDEX #" << j << " --> " << triggerNames[j] << std::endl;
+	}
+      }
+    if (!found) parameter.hltPathIndex = -1;
+  }
+
+}
+
+void Ntuplizer::Initialize() {
+  this -> _indexevents = 0;
+  this -> _runNumber = 0;
+  this -> _lumi = 0;
+
+  this -> _MET = -1.;
+
+  this -> _tauPt = -1.;
+  this -> _tauEta = -1.;
+  this -> _tauPhi = -1.;
+  this -> _tauDM = -1;
+
+  this -> _byLooseCombinedIsolationDeltaBetaCorr3Hits = 0;
+  this -> _byMediumCombinedIsolationDeltaBetaCorr3Hits = 0;
+  this -> _byTightCombinedIsolationDeltaBetaCorr3Hits = 0;
+  this -> _byVLooseIsolationMVArun2v1DBoldDMwLT = 0;
+  this -> _byLooseIsolationMVArun2v1DBoldDMwLT = 0;
+  this -> _byMediumIsolationMVArun2v1DBoldDMwLT = 0;
+  this -> _byTightIsolationMVArun2v1DBoldDMwLT = 0;
+  this -> _byVTightIsolationMVArun2v1DBoldDMwLT = 0;
+  this -> _byVLooseIsolationMVArun2v1DBnewDMwLT = 0;
+  this -> _byLooseIsolationMVArun2v1DBnewDMwLT = 0;
+  this -> _byMediumIsolationMVArun2v1DBnewDMwLT = 0;
+  this -> _byTightIsolationMVArun2v1DBnewDMwLT = 0;
+  this -> _byVTightIsolationMVArun2v1DBnewDMwLT = 0;    
+  this -> _byLooseIsolationMVArun2v1DBdR03oldDMwLT = 0;
+  this -> _byMediumIsolationMVArun2v1DBdR03oldDMwLT = 0;
+  this -> _byTightIsolationMVArun2v1DBdR03oldDMwLT = 0;
+  this -> _byVTightIsolationMVArun2v1DBdR03oldDMwLT = 0;
+
+  this -> _againstMuonLoose3 = 0;
+  this -> _againstMuonTight3 = 0;
+  this -> _againstElectronVLooseMVA6 = 0;
+  this -> _againstElectronLooseMVA6 = 0;
+  this -> _againstElectronMediumMVA6 = 0;
+  this -> _againstElectronTightMVA6 = 0;
+  this -> _againstElectronVTightMVA6 = 0;
+
+  this -> _muonPt = -1.;
+  this -> _muonEta = -1.;
+  this -> _muonPhi = -1.;
+  this -> _isMatched = false;
+
+  this -> _hltPt = -1;
+  this -> _hltEta = 666;
+  this -> _hltPhi = 666;
+  this -> _hltL2CaloJetPt = -1;
+  this -> _hltL2CaloJetEta = 666;
+  this -> _hltL2CaloJetPhi = 666;
+  this -> _hltL2CaloJetIso = -1;
+  this -> _hltL2CaloJetIsoPixPt = -1;
+  this -> _hltL2CaloJetIsoPixEta = 666;
+  this -> _hltL2CaloJetIsoPixPhi = 666;
+  this -> _hltPFTauTrackPt = -1;
+  this -> _hltPFTauTrackEta = 666;
+  this -> _hltPFTauTrackPhi = 666;
+  this -> _hltPFTauTrackRegPt = -1;
+  this -> _hltPFTauTrackRegEta = 666;
+  this -> _hltPFTauTrackRegPhi = 666;
+  this -> _hltPFTau35TrackPt1RegPt = -1;
+  this -> _hltPFTau35TrackPt1RegEta = 666;
+  this -> _hltPFTau35TrackPt1RegPhi = 666;
+
+  this -> _l1tPt = -1;
+  this -> _l1tEta = 666;
+  this -> _l1tPhi = 666;
+  this -> _l1tQual = -1;
+  this -> _l1tIso = -1;
+  this -> _l1tEmuPt = -1;
+  this -> _l1tEmuEta = 666;
+  this -> _l1tEmuPhi = 666;
+  this -> _l1tEmuQual = -1;
+  this -> _l1tEmuIso = -1;
+  this -> _l1tEmuNTT = -1;
+  this -> _l1tEmuHasEM = -1;
+  this -> _l1tEmuIsMerged = -1;
+  this -> _l1tEmuTowerIEta = -1;
+  this -> _l1tEmuTowerIPhi = -1;
+  this -> _l1tEmuRawEt = -1;
+  this -> _l1tEmuIsoEt = -1;
+  this -> _foundJet = 0;
+
+  this -> _probeTestedPathsNames.clear();
+  this -> _probeNumberTestedFiltersNames.clear();
+  this -> _probeTestedFiltersNames.clear();
+  this -> _probePassTestedFiltersNames.clear();
+
+}
+
+
+void Ntuplizer::beginJob()
+{
+  edm::Service<TFileService> fs;
+  this -> _tree = fs -> make<TTree>(this -> _treeName.c_str(), this -> _treeName.c_str());
+
+  //Branches
+  this -> _tree -> Branch("EventNumber",&_indexevents,"EventNumber/l");
+  this -> _tree -> Branch("RunNumber",&_runNumber,"RunNumber/I");
+  this -> _tree -> Branch("lumi",&_lumi,"lumi/I");
+  this -> _tree -> Branch("tauTriggerBits", &_tauTriggerBits, "tauTriggerBits/l");
+  this -> _tree -> Branch("tauPt",  &_tauPt,  "tauPt/F");
+  this -> _tree -> Branch("tauEta", &_tauEta, "tauEta/F");
+  this -> _tree -> Branch("tauPhi", &_tauPhi, "tauPhi/F");
+  this -> _tree -> Branch("tauDM", &_tauDM, "tauDM/I");
+
+  this -> _tree -> Branch("MET",  &_MET,  "MET/F");
+
+  this -> _tree -> Branch("byLooseCombinedIsolationDeltaBetaCorr3Hits", &_byLooseCombinedIsolationDeltaBetaCorr3Hits, "byLooseCombinedIsolationDeltaBetaCorr3Hits/O");
+  this -> _tree -> Branch("byMediumCombinedIsolationDeltaBetaCorr3Hits", &_byMediumCombinedIsolationDeltaBetaCorr3Hits, "byMediumCombinedIsolationDeltaBetaCorr3Hits/O");
+  this -> _tree -> Branch("byTightCombinedIsolationDeltaBetaCorr3Hits", &_byTightCombinedIsolationDeltaBetaCorr3Hits, "byTightCombinedIsolationDeltaBetaCorr3Hits/O");
+  this -> _tree -> Branch("byVLooseIsolationMVArun2v1DBoldDMwLT", &_byVLooseIsolationMVArun2v1DBoldDMwLT, "byVLooseIsolationMVArun2v1DBoldDMwLT/O");
+  this -> _tree -> Branch("byLooseIsolationMVArun2v1DBoldDMwLT", &_byLooseIsolationMVArun2v1DBoldDMwLT, "byLooseIsolationMVArun2v1DBoldDMwLT/O");
+  this -> _tree -> Branch("byMediumIsolationMVArun2v1DBoldDMwLT", &_byMediumIsolationMVArun2v1DBoldDMwLT, "byMediumIsolationMVArun2v1DBoldDMwLT/O");
+  this -> _tree -> Branch("byTightIsolationMVArun2v1DBoldDMwLT", &_byTightIsolationMVArun2v1DBoldDMwLT, "byTightIsolationMVArun2v1DBoldDMwLT/O");
+  this -> _tree -> Branch("byVTightIsolationMVArun2v1DBoldDMwLT", &_byVTightIsolationMVArun2v1DBoldDMwLT, "byVTightIsolationMVArun2v1DBoldDMwLT/O");
+  this -> _tree -> Branch("byVLooseIsolationMVArun2v1DBnewDMwLT", &_byVLooseIsolationMVArun2v1DBnewDMwLT, "byVLooseIsolationMVArun2v1DBnewDMwLT/O");
+  this -> _tree -> Branch("byLooseIsolationMVArun2v1DBnewDMwLT", &_byLooseIsolationMVArun2v1DBnewDMwLT, "byLooseIsolationMVArun2v1DBnewDMwLT/O");
+  this -> _tree -> Branch("byMediumIsolationMVArun2v1DBnewDMwLT", &_byMediumIsolationMVArun2v1DBnewDMwLT, "byMediumIsolationMVArun2v1DBnewDMwLT/O");
+  this -> _tree -> Branch("byTightIsolationMVArun2v1DBnewDMwLT", &_byTightIsolationMVArun2v1DBnewDMwLT, "byTightIsolationMVArun2v1DBnewDMwLT/O");
+  this -> _tree -> Branch("byVTightIsolationMVArun2v1DBnewDMwLT", &_byVTightIsolationMVArun2v1DBnewDMwLT, "byVTightIsolationMVArun2v1DBnewDMwLT/O");    
+  this -> _tree -> Branch("byLooseIsolationMVArun2v1DBdR03oldDMwLT", &_byLooseIsolationMVArun2v1DBdR03oldDMwLT, "byLooseIsolationMVArun2v1DBdR03oldDMwLT/O");
+  this -> _tree -> Branch("byMediumIsolationMVArun2v1DBdR03oldDMwLT", &_byMediumIsolationMVArun2v1DBdR03oldDMwLT, "byMediumIsolationMVArun2v1DBdR03oldDMwLT/O");
+  this -> _tree -> Branch("byTightIsolationMVArun2v1DBdR03oldDMwLT", &_byTightIsolationMVArun2v1DBdR03oldDMwLT, "byTightIsolationMVArun2v1DBdR03oldDMwLT/O");
+  this -> _tree -> Branch("byVTightIsolationMVArun2v1DBdR03oldDMwLT", &_byVTightIsolationMVArun2v1DBdR03oldDMwLT, "byVTightIsolationMVArun2v1DBdR03oldDMwLT/O");
+
+
+  this -> _tree -> Branch("againstMuonLoose3", &_againstMuonLoose3, "againstMuonLoose3/O");;
+  this -> _tree -> Branch("againstMuonTight3", &_againstMuonTight3, "againstMuonTight3/O");
+  this -> _tree -> Branch("againstElectronVLooseMVA6", &_againstElectronVLooseMVA6, "againstElectronVLooseMVA6/O");
+  this -> _tree -> Branch("againstElectronLooseMVA6", &_againstElectronLooseMVA6, "againstElectronLooseMVA6/O");
+  this -> _tree -> Branch("againstElectronMediumMVA6", &_againstElectronMediumMVA6, "againstElectronMediumMVA6/O");
+  this -> _tree -> Branch("againstElectronTightMVA6", &_againstElectronTightMVA6, "againstElectronTightMVA6/O");
+  this -> _tree -> Branch("againstElectronVTightMVA6", &_againstElectronVTightMVA6, "againstElectronVTightMVA6/O");
+
+  this -> _tree -> Branch("muonPt",  &_muonPt,  "muonPt/F");
+  this -> _tree -> Branch("muonEta", &_muonEta, "muonEta/F");
+  this -> _tree -> Branch("muonPhi", &_muonPhi, "muonPhi/F");
+    
+  this -> _tree -> Branch("hltPt",  &_hltPt,  "hltPt/F");
+  this -> _tree -> Branch("hltEta", &_hltEta, "hltEta/F");
+  this -> _tree -> Branch("hltPhi", &_hltPhi, "hltPhi/F");
+
+  this -> _tree -> Branch("hltL2CaloJetPt",  &_hltL2CaloJetPt,  "hltL2CaloJetPt/F");
+  this -> _tree -> Branch("hltL2CaloJetEta", &_hltL2CaloJetEta, "hltL2CaloJetEta/F");
+  this -> _tree -> Branch("hltL2CaloJetPhi", &_hltL2CaloJetPhi, "hltL2CaloJetPhi/F");
+  this -> _tree -> Branch("hltL2CaloJetIso", &_hltL2CaloJetIso, "hltL2CaloJetIso/F");
+  this -> _tree -> Branch("hltL2CaloJetIsoPixPt",  &_hltL2CaloJetIsoPixPt,  "hltL2CaloJetIsoPixPt/F");
+  this -> _tree -> Branch("hltL2CaloJetIsoPixEta", &_hltL2CaloJetIsoPixEta, "hltL2CaloJetIsoPixEta/F");
+  this -> _tree -> Branch("hltL2CaloJetIsoPixPhi", &_hltL2CaloJetIsoPixPhi, "hltL2CaloJetIsoPixPhi/F");
+
+  this -> _tree -> Branch("hltPFTauTrackPt",  &_hltPFTauTrackPt,  "hltPFTauTrackPt/F");
+  this -> _tree -> Branch("hltPFTauTrackEta", &_hltPFTauTrackEta, "hltPFTauTrackEta/F");;
+  this -> _tree -> Branch("hltPFTauTrackPhi", &_hltPFTauTrackPhi, "hltPFTauTrackPhi/F");
+  this -> _tree -> Branch("hltPFTauTrackRegPt",  &_hltPFTauTrackRegPt,  "hltPFTauTrackRegPt/F");
+  this -> _tree -> Branch("hltPFTauTrackRegEta", &_hltPFTauTrackRegEta, "hltPFTauTrackRegEta/F");;
+  this -> _tree -> Branch("hltPFTauTrackRegPhi", &_hltPFTauTrackRegPhi, "hltPFTauTrackRegPhi/F");
+  this -> _tree -> Branch("hltPFTau35TrackPt1RegPt",  &_hltPFTau35TrackPt1RegPt,  "hltPFTau35TrackPt1RegPt/F");
+  this -> _tree -> Branch("hltPFTau35TrackPt1RegEta", &_hltPFTau35TrackPt1RegEta, "hltPFTau35TrackPt1RegEta/F");;
+  this -> _tree -> Branch("hltPFTau35TrackPt1RegPhi", &_hltPFTau35TrackPt1RegPhi, "hltPFTau35TrackPt1RegPhi/F");
+
+
+  this -> _tree -> Branch("l1tPt",  &_l1tPt,  "l1tPt/F");
+  this -> _tree -> Branch("l1tEta", &_l1tEta, "l1tEta/F");
+  this -> _tree -> Branch("l1tPhi", &_l1tPhi, "l1tPhi/F");
+  this -> _tree -> Branch("l1tQual", &_l1tQual, "l1tQual/I");
+  this -> _tree -> Branch("l1tIso", &_l1tIso, "l1tIso/I");
+  this -> _tree -> Branch("l1tEmuPt",  &_l1tEmuPt,  "l1tEmuPt/F");
+  this -> _tree -> Branch("l1tEmuEta", &_l1tEmuEta, "l1tEmuEta/F");
+  this -> _tree -> Branch("l1tEmuPhi", &_l1tEmuPhi, "l1tEmuPhi/F");
+  this -> _tree -> Branch("l1tEmuQual", &_l1tEmuQual, "l1tEmuQual/I");
+  this -> _tree -> Branch("l1tEmuIso", &_l1tEmuIso, "l1tEmuIso/I");
+  this -> _tree -> Branch("l1tEmuNTT", &_l1tEmuNTT, "l1tEmuNTT/I");
+  this -> _tree -> Branch("l1tEmuHasEM", &_l1tEmuHasEM, "l1tEmuHasEM/I");
+  this -> _tree -> Branch("l1tEmuIsMerged", &_l1tEmuIsMerged, "l1tEmuIsMerged/I");
+  this -> _tree -> Branch("l1tEmuTowerIEta", &_l1tEmuTowerIEta, "l1tEmuTowerIEta/I");
+  this -> _tree -> Branch("l1tEmuTowerIPhi", &_l1tEmuTowerIPhi, "l1tEmuTowerIPhi/I");
+  this -> _tree -> Branch("l1tEmuRawEt", &_l1tEmuRawEt, "l1tEmuRawEt/I");
+  this -> _tree -> Branch("l1tEmuIsoEt", &_l1tEmuIsoEt, "l1tEmuIsoEt/I");
+
+
+  this -> _tree -> Branch("hasTriggerMuonType", &_hasTriggerMuonType, "hasTriggerMuonType/O");
+  this -> _tree -> Branch("hasTriggerTauType", &_hasTriggerTauType, "hasTriggerTauType/O");
+  this -> _tree -> Branch("isMatched", &_isMatched, "isMatched/O");
+  this -> _tree -> Branch("isOS", &_isOS, "isOS/O");
+  this -> _tree -> Branch("foundJet", &_foundJet, "foundJet/I");
+  this -> _tree -> Branch("Nvtx", &_Nvtx, "Nvtx/I");
+
+  this -> _tree -> Branch("probeTestedPathsNames", &_probeTestedPathsNames);
+  this -> _tree -> Branch("probeNumberTestedFiltersNames", &_probeNumberTestedFiltersNames);
+  this -> _tree -> Branch("probeTestedFiltersNames", &_probeTestedFiltersNames);
+  this -> _tree -> Branch("probePassTestedFiltersNames", &_probePassTestedFiltersNames);
+  
+
+  return;
+}
+
+
+void Ntuplizer::endJob()
+{
+  return;
+}
+
+
+void Ntuplizer::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+{
+  return;
+}
+
+
+void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& eSetup)
+{
+  this -> Initialize();
+
+  _indexevents = iEvent.id().event();
+  _runNumber = iEvent.id().run();
+  _lumi = iEvent.luminosityBlock();
+
+  _probeTestedPathsNames.clear();
+  _probeNumberTestedFiltersNames.clear();
+  _probeTestedFiltersNames.clear();
+  _probePassTestedFiltersNames.clear();
+
+  for (const tParameterSet& parameter : this -> _parameters)
+    {
+      _probeTestedPathsNames.push_back(parameter.hltPath);
+      _probeNumberTestedFiltersNames.push_back(parameter.hltFilters1.size());
+      const std::vector<std::string>& filters = parameter.hltFilters1;
+      
+      for (const std::string& filter : filters)
+	{
+	  _probeTestedFiltersNames.push_back(filter);
+	  _probePassTestedFiltersNames.push_back(0);
+	}
+
+    }
+
+  // search for the tag in the event
+  edm::Handle<pat::MuonRefVector> muonHandle;
+  edm::Handle<pat::METCollection>  metHandle;
+  edm::Handle<edm::View<pat::Jet>> jetHandle;
+  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+  edm::Handle<edm::TriggerResults> triggerBits;
+  edm::Handle<std::vector<reco::Vertex> >  vertexes;
+
+  iEvent.getByToken(this -> _muonsTag, muonHandle);
+  iEvent.getByToken(this -> _metTag,   metHandle);
+  iEvent.getByToken(this -> _jetTag, jetHandle);
+  iEvent.getByToken(this -> _triggerObjects, triggerObjects);
+  iEvent.getByToken(this -> _triggerBits, triggerBits);
+  iEvent.getByToken(this -> _VtxTag,vertexes);
+    
+  for (pat::TriggerObjectStandAlone  obj : *triggerObjects)
+    {
+      for (const tParameterSet& parameter : this -> _parameters)
+	{
+	  if(obj.hasTriggerObjectType(trigger::TriggerMET) && obj.collection().find("hltMetClean") != std::string::npos)
+	    {
+	      if(hasFilter(obj, parameter.hltFilters1[0])) cout<<"hey hey0"<<endl;
+	    }
+	  if(obj.hasTriggerObjectType(trigger::TriggerMET) && obj.collection().find("hltPFMETVBFProducer") != std::string::npos)
+	    {
+	      if(hasFilter(obj, parameter.hltFilters2[0])) cout<<"hey hey1"<<endl;
+	    }
+	  if(obj.collection().find("hltL1TPFJetsMatching") != std::string::npos)
+	    {
+	      if(hasFilter(obj, parameter.hltFilters3[0])) cout<<"hey hey2"<<endl;
+	    }
+	}
+    }
+
+  //! TagAndProbe on HLT taus
+  const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+  //const pat::TauRef tau = (*tauHandle)[0] ;
+  //const pat::MuonRef muon = (*muonHandle)[0] ;
+
+  cout<<"hello0"<<endl;
+
+  //if(muonHandle.isValid()) this -> _isOS = (muon -> charge() / tau -> charge() < 0) ? true : false;
+
+
+  if(metHandle.isValid())
+    {
+      const pat::MET met = (*metHandle)[0] ;
+      _MET = met.pt();
+    }
+
+  const edm::View<pat::Jet>* jets = jetHandle.product();
+  for(edm::View<pat::Jet>::const_iterator ijet = jets->begin(); ijet!=jets->end();++ijet)
+    {
+      //cout<<"(float) ijet->px() = "<<ijet->px()<<endl;
+    }
+
+  this -> _tauTriggerBitSet.reset();
+
+  bool foundMuTrigger = false;
+
+  //looping on HLT trigger objects
+  for (pat::TriggerObjectStandAlone  obj : *triggerObjects)
+    {
+
+      if(obj.hasTriggerObjectType(trigger::TriggerMET))
+	{
+	  // cout<<"is MET!"<<endl;
+	  // cout<<"obj.collection_ = "<<obj.collection()<<endl;
+	}
+
+      obj.unpackPathNames(names);
+      const edm::TriggerNames::Strings& triggerNames = names.triggerNames();
+
+      const std::vector<std::string>& eventLabels = obj.filterLabels();
+      //for(unsigned int i=0; i<eventLabels.size();i++) // cout<<eventLabels[i]<<endl;
+	
+      /*
+      //checking the tag (muon) matching with HLT muon
+      if(obj.hasTriggerObjectType(trigger::TriggerMuon)){
+	  
+	const float dR = deltaR (*muon, obj);
+	if ( dR < 0.5 && fabs(obj.eta())<2.1 ){
+
+	  for (const tParameterSet& parameter : this -> _parameters_Tag)
+	    {
+	      if ((parameter.hltPathIndex >= 0)&&(obj.hasPathName(triggerNames[parameter.hltPathIndex], true, false)))	
+		foundMuTrigger = true;
+	    }
+	}
+      }
+      */
+    }
+
+  // this -> _tauPt = tau -> pt();
+  // this -> _tauEta = tau -> eta();
+  // this -> _tauPhi = tau -> phi();
+  // this -> _tauDM = tau -> decayMode();
+
+  // this -> _byLooseCombinedIsolationDeltaBetaCorr3Hits = tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits");
+  // this -> _byMediumCombinedIsolationDeltaBetaCorr3Hits = tau->tauID("byMediumCombinedIsolationDeltaBetaCorr3Hits");
+  // this -> _byTightCombinedIsolationDeltaBetaCorr3Hits = tau->tauID("byTightCombinedIsolationDeltaBetaCorr3Hits");
+  // this -> _byVLooseIsolationMVArun2v1DBoldDMwLT = tau->tauID("byVLooseIsolationMVArun2v1DBoldDMwLT");
+  // this -> _byLooseIsolationMVArun2v1DBoldDMwLT = tau->tauID("byLooseIsolationMVArun2v1DBoldDMwLT");
+  // this -> _byMediumIsolationMVArun2v1DBoldDMwLT = tau->tauID("byMediumIsolationMVArun2v1DBoldDMwLT");
+  // this -> _byTightIsolationMVArun2v1DBoldDMwLT = tau->tauID("byTightIsolationMVArun2v1DBoldDMwLT");
+  // this -> _byVTightIsolationMVArun2v1DBoldDMwLT = tau->tauID("byVTightIsolationMVArun2v1DBoldDMwLT");
+  // this -> _byVLooseIsolationMVArun2v1DBnewDMwLT = tau->tauID("byVLooseIsolationMVArun2v1DBnewDMwLT");
+  // this -> _byLooseIsolationMVArun2v1DBnewDMwLT = tau->tauID("byLooseIsolationMVArun2v1DBnewDMwLT");
+  // this -> _byMediumIsolationMVArun2v1DBnewDMwLT = tau->tauID("byMediumIsolationMVArun2v1DBnewDMwLT");
+  // this -> _byTightIsolationMVArun2v1DBnewDMwLT = tau->tauID("byTightIsolationMVArun2v1DBnewDMwLT");
+  // this -> _byVTightIsolationMVArun2v1DBnewDMwLT = tau->tauID("byVTightIsolationMVArun2v1DBnewDMwLT");
+  // this -> _byLooseIsolationMVArun2v1DBdR03oldDMwLT = tau->tauID("byLooseIsolationMVArun2v1DBdR03oldDMwLT");
+  // this -> _byMediumIsolationMVArun2v1DBdR03oldDMwLT = tau->tauID("byMediumIsolationMVArun2v1DBdR03oldDMwLT");
+  // this -> _byTightIsolationMVArun2v1DBdR03oldDMwLT = tau->tauID("byTightIsolationMVArun2v1DBdR03oldDMwLT");
+  // this -> _byVTightIsolationMVArun2v1DBdR03oldDMwLT = tau->tauID("byVTightIsolationMVArun2v1DBdR03oldDMwLT");
+
+  // this -> _againstMuonLoose3 = tau->tauID("againstMuonLoose3");
+  // this -> _againstMuonTight3 = tau->tauID("againstMuonTight3");
+  // this -> _againstElectronVLooseMVA6 = tau->tauID("againstElectronVLooseMVA6");
+  // this -> _againstElectronLooseMVA6 = tau->tauID("againstElectronLooseMVA6");
+  // this -> _againstElectronMediumMVA6 = tau->tauID("againstElectronMediumMVA6");
+  // this -> _againstElectronTightMVA6 = tau->tauID("againstElectronTightMVA6");
+  // this -> _againstElectronVTightMVA6 = tau->tauID("againstElectronVTightMVA6");
+
+  // if(muonHandle.isValid()) this -> _muonPt=muon->pt();
+  // if(muonHandle.isValid()) this -> _muonEta=muon->eta();
+  // if(muonHandle.isValid()) this -> _muonPhi=muon->phi();
+
+  this -> _Nvtx = vertexes->size();
+
+  //float deltaPt = this -> _hltPt - this -> _tauPt;
+  //if (this -> _foundJet > 1 ) std::cout << "deltaPt: " << deltaPt << " con foundJet " << this -> _foundJet << " hltPt " << this -> _hltPt << endl;
+
+  this -> _tauTriggerBits = this -> _tauTriggerBitSet.to_ulong();
+  //std::cout << "++++++++++ FILL ++++++++++" << std::endl;
+
+  //if(foundMuTrigger)
+  this -> _tree -> Fill();
+
+}
+
+bool Ntuplizer::hasFilters(const pat::TriggerObjectStandAlone&  obj , const std::vector<std::string>& filtersToLookFor) {
+
+  const std::vector<std::string>& eventLabels = obj.filterLabels();
+  for (const std::string& filter : filtersToLookFor)
+    {
+      //Looking for matching filters
+      bool found = false;
+      for (const std::string& label : eventLabels)
+        {
+
+	  //cout<<"label="<<label<<endl;
+	  //cout<<"filter="<<filter<<endl;
+
+	  //if (label == std::string("hltOverlapFilterIsoMu17MediumIsoPFTau40Reg"))
+	  if (label == filter)
+            {
+
+	      //std::cout << "#### FOUND FILTER " << label << " == " << filter << " ####" << std::endl;
+	      found = true;
+            }
+        }
+      if(!found) return false;
+    }
+
+  return true;
+}
+
+bool Ntuplizer::hasFilter(const pat::TriggerObjectStandAlone&  obj ,const std::string& filterToLookFor) {
+
+  const std::vector<std::string>& eventLabels = obj.filterLabels();
+
+  bool found = false;
+  for (const std::string& label : eventLabels)
+    {
+      //cout<<"testing label = "<<label<<endl;
+      if (label == filterToLookFor)
+	{
+	  
+	  //std::cout << "#### FOUND FILTER " << label << " == " << filter << " ####" << std::endl;
+	  found = true;
+	}
+    }
+
+  return found;
+}
+
+
+
+#include <FWCore/Framework/interface/MakerMacros.h>
+DEFINE_FWK_MODULE(Ntuplizer);
+
+#endif //NTUPLIZER_H

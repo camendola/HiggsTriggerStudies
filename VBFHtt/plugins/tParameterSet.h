@@ -1,0 +1,22 @@
+#ifndef TPARAMETERSET_H
+#define TPARAMETERSET_H
+
+
+struct tParameterSet {
+  //!Contains the HLT paths
+  std::string hltPath;
+  //!Contains the index in trigger names where hltPath is kept
+  int hltPathIndex;
+  //!Contains the filters
+  std::vector<std::string> hltFilters1;//CaloMET
+  std::vector<std::string> hltFilters2;//PFMET
+  std::vector<std::string> hltFilters3;//Jets
+  //!Contains the leg
+  int leg1;
+  int leg2;
+  int leg3;
+};
+
+typedef std::vector<tParameterSet> tVParameterSet;
+
+#endif
